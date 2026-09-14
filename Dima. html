@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 — Dima's Course</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            /* Distinct soft pastel colors for packages starting Sep 9 */
+            --pkg-1-bg: #dcfce7; --pkg-1-text: #15803d; /* Sep-Oct */
+            --pkg-2-bg: #ffedd5; --pkg-2-text: #c2410c; /* Oct-Nov */
+            --pkg-3-bg: #e0e7ff; --pkg-3-text: #4338ca; /* Nov-Dec */
+            --pkg-4-bg: #fce7f3; --pkg-4-text: #be185d; /* Dec */
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            color: #1e293b;
+            min-height: 100vh;
+        }
+
+        /* Package badge & cell classes */
+        .pkg-1 { background-color: var(--pkg-1-bg); color: var(--pkg-1-text); font-weight: 700; }
+        .pkg-2 { background-color: var(--pkg-2-bg); color: var(--pkg-2-text); font-weight: 700; }
+        .pkg-3 { background-color: var(--pkg-3-bg); color: var(--pkg-3-text); font-weight: 700; }
+        .pkg-4 { background-color: var(--pkg-4-bg); color: var(--pkg-4-text); font-weight: 700; }
+
+        .weekend {
+            background-color: #fef2f2;
+            color: #ef4444;
+        }
+
+        .other-month {
+            color: #cbd5e1;
+            font-weight: 400;
+        }
+
+        /* Dima's lesson indicator (Wednesday & Thursday) */
+        .dima-lesson {
+            box-shadow: inset 0 0 0 2px #2563eb;
+            font-weight: 800 !important;
+            position: relative;
+        }
+
+        .dima-lesson::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            width: 5px;
+            height: 5px;
+            background-color: #2563eb;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8 font-sans antialiased">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="mb-8 text-center flex flex-col items-center justify-center gap-3">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-600 text-white font-extrabold rounded-full text-sm shadow-md shadow-blue-500/20 tracking-wider">
+                <span>2026</span>
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Dima's Course</h1>
+        </header>
+
+        <main>
+            <div id="calendarGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+        </main>
+
+        <footer class="mt-12 text-center text-xs font-medium text-slate-400">
+            © 2026 Dima's Course
+        </footer>
+    </div>
+
+    <script>
+        const year = 2026;
+        const months = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+        const weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+
+        // Helper date utility functions
+        function getDaysInMonth(y, m) { return new Date(y, m + 1, 0).getDate(); }
+        function getStartOffset(y, m) { const d = new Date(y, m, 1).getDay(); return d === 0 ? 6 : d - 1; }
+        function formatDate(y, m, d) { return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`; }
+
+        function generateWorkdayPackage(startDateStr, count = 20) {
+            const result = [];
+            let curr = new Date(startDateStr);
+            while (result.length < count) {
+                const dayOfWeek = curr.getDay();
+                // 0 = Sun, 6 = Sat
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                    const y = curr.getFullYear();
+                    const m = curr.getMonth();
+                    const d = curr.getDate();
+                    result.push(formatDate(y, m, d));
+                }
+                curr.setDate(curr.getDate() + 1);
+            }
+            return result;
+        }
+
+        // Package 1 starting September 9, 2026 (20 workdays: Sep 9 -> Oct 6)
+        const pkg1 = generateWorkdayPackage("2026-09-09", 20);
+
+        function getPackageClass(dateStr) {
+            if (pkg1.includes(dateStr)) return "pkg-1";
+            return null;
+        }
+
+        function isDimaLesson(dateStr, dateObj) {
+            const dayOfWeek = dateObj.getDay(); // 3 = Wed, 4 = Thu
+            if (dayOfWeek !== 3 && dayOfWeek !== 4) return false;
+            
+            // Check if date belongs to defined September package
+            return getPackageClass(dateStr) !== null;
+        }
+
+        function getCellClasses(dateStr, y, m, d) {
+            const dateObj = new Date(y, m, d);
+            const isWeekend = (dateObj.getDay() === 0 || dateObj.getDay() === 6);
+            let classes = [];
+
+            const pkgClass = getPackageClass(dateStr);
+            if (pkgClass) classes.push(pkgClass);
+            else if (isWeekend) classes.push("weekend");
+
+            if (isDimaLesson(dateStr, dateObj)) {
+                classes.push("dima-lesson");
+            }
+
+            return classes.join(" ");
+        }
+
+        function renderCalendar() {
+            const container = document.getElementById("calendarGrid");
+            container.innerHTML = "";
+
+            for (let m = 0; m < 12; m++) {
+                const daysInMonth = getDaysInMonth(year, m);
+                const startOffset = getStartOffset(year, m);
+                const totalCells = Math.ceil((startOffset + daysInMonth) / 7) * 7;
+
+                let cardHtml = `
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden flex flex-col">
+                    <div class="bg-slate-100 text-slate-800 text-center py-2.5 px-4 font-bold text-base tracking-wide flex items-center justify-between border-b border-slate-200/60">
+                        <span>${months[m]}</span>
+                        <span class="text-xs text-slate-400 font-normal">2026</span>
+                    </div>
+                    <div class="p-3 flex-1 flex flex-col justify-center">
+                        <table class="w-full border-separate border-spacing-1 text-center">
+                            <thead>
+                                <tr>`;
+                
+                for (let w of weekDays) {
+                    const isW = (w === "Сб" || w === "Вс");
+                    cardHtml += `<th class="py-1 text-[11px] font-bold ${isW ? 'text-red-500' : 'text-slate-400'} uppercase">${w}</th>`;
+                }
+                
+                cardHtml += `</tr>
+                            </thead>
+                            <tbody>`;
+
+                let day = 1;
+                for (let i = 0; i < totalCells; i++) {
+                    if (i % 7 === 0) cardHtml += "<tr>";
+
+                    if (i >= startOffset && day <= daysInMonth) {
+                        const dateStr = formatDate(year, m, day);
+                        const cls = getCellClasses(dateStr, year, m, day);
+                        cardHtml += `<td class="h-8 w-8 text-xs rounded-lg font-semibold transition-transform duration-150 align-middle ${cls}">${day}</td>`;
+                        day++;
+                    } else {
+                        const prevMonth = m === 0 ? 11 : m - 1;
+                        const prevYear = m === 0 ? year - 1 : year;
+                        const prevMonthDays = getDaysInMonth(prevYear, prevMonth);
+                        let prevDay = prevMonthDays - (startOffset - i - 1);
+                        if (prevDay <= 0) {
+                            const prevPrevMonth = prevMonth === 0 ? 11 : prevMonth - 1;
+                            const prevPrevYear = prevMonth === 0 ? year - 1 : year;
+                            prevDay = getDaysInMonth(prevPrevYear, prevPrevMonth) + prevDay;
+                        }
+                        cardHtml += `<td class="h-8 w-8 text-xs rounded-lg other-month align-middle">${prevDay}</td>`;
+                    }
+
+                    if (i % 7 === 6) cardHtml += "</tr>";
+                }
+
+                cardHtml += `</tbody></table></div></div>`;
+                container.innerHTML += cardHtml;
+            }
+        }
+
+        window.onload = renderCalendar;
+    </script>
+</body>
+</html>

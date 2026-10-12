@@ -21,89 +21,102 @@
     </script>
     <style>
         :root {
-            /* Distinct soft pastel colors for packages starting Sep 9 */
-            --pkg-1-bg: #dcfce7; --pkg-1-text: #15803d; /* Sep-Oct */
-            --pkg-2-bg: #ffedd5; --pkg-2-text: #c2410c; /* Oct-Nov */
-            --pkg-3-bg: #e0e7ff; --pkg-3-text: #4338ca; /* Nov-Dec */
-            --pkg-4-bg: #fce7f3; --pkg-4-text: #be185d; /* Dec */
+            /* Distinct soft pastel colors for packages */
+            --pkg-1-bg: #dcfce7; --pkg-1-text: #15803d; /* Sep-Oct (Package 1: Wed & Thu) */
+            --pkg-2-bg: #e0e7ff; --pkg-2-text: #3730a3; /* Oct (Package 2: Thu) */
         }
-
         body {
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             color: #1e293b;
             min-height: 100vh;
         }
-
         /* Package badge & cell classes */
         .pkg-1 { background-color: var(--pkg-1-bg); color: var(--pkg-1-text); font-weight: 700; }
         .pkg-2 { background-color: var(--pkg-2-bg); color: var(--pkg-2-text); font-weight: 700; }
-        .pkg-3 { background-color: var(--pkg-3-bg); color: var(--pkg-3-text); font-weight: 700; }
-        .pkg-4 { background-color: var(--pkg-4-bg); color: var(--pkg-4-text); font-weight: 700; }
-
         .weekend {
             background-color: #fef2f2;
             color: #ef4444;
         }
-
         .other-month {
             color: #cbd5e1;
             font-weight: 400;
         }
-
-        /* Dima's lesson indicator (Wednesday & Thursday) */
-        .dima-lesson {
-            box-shadow: inset 0 0 0 2px #2563eb;
+        /* Dima's lesson indicators */
+        .dima-lesson-pkg1 {
+            box-shadow: inset 0 0 0 2px #15803d;
             font-weight: 800 !important;
             position: relative;
         }
-
-        .dima-lesson::after {
+        .dima-lesson-pkg1::after {
             content: '';
             position: absolute;
             top: 3px;
             right: 3px;
             width: 5px;
             height: 5px;
-            background-color: #2563eb;
+            background-color: #15803d;
+            border-radius: 50%;
+        }
+
+        .dima-lesson-pkg2 {
+            box-shadow: inset 0 0 0 2px #4f46e5;
+            font-weight: 800 !important;
+            position: relative;
+        }
+        .dima-lesson-pkg2::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            width: 5px;
+            height: 5px;
+            background-color: #4f46e5;
             border-radius: 50%;
         }
     </style>
 </head>
 <body class="p-4 sm:p-8 font-sans antialiased">
-
     <div class="max-w-7xl mx-auto">
         <header class="mb-8 text-center flex flex-col items-center justify-center gap-3">
             <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-600 text-white font-extrabold rounded-full text-sm shadow-md shadow-blue-500/20 tracking-wider">
                 <span>2026</span>
             </div>
             <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Dima's Course</h1>
+            
+            <!-- Legend -->
+            <div class="flex flex-wrap items-center justify-center gap-4 mt-2 text-xs font-semibold">
+                <div class="flex items-center gap-2 bg-green-100/80 px-3 py-1.5 rounded-lg border border-green-200">
+                    <span class="w-2.5 h-2.5 rounded-full bg-green-600"></span>
+                    <span class="text-green-900">Пакет 1: Ср, Чт (с 9 сентября)</span>
+                </div>
+                <div class="flex items-center gap-2 bg-indigo-100/80 px-3 py-1.5 rounded-lg border border-indigo-200">
+                    <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
+                    <span class="text-indigo-900">Пакет 2: Чт (с 8 октября)</span>
+                </div>
+            </div>
         </header>
-
         <main>
             <div id="calendarGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
         </main>
-
         <footer class="mt-12 text-center text-xs font-medium text-slate-400">
             © 2026 Dima's Course
         </footer>
     </div>
-
     <script>
         const year = 2026;
         const months = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
         const weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
-
+        
         // Helper date utility functions
         function getDaysInMonth(y, m) { return new Date(y, m + 1, 0).getDate(); }
         function getStartOffset(y, m) { const d = new Date(y, m, 1).getDay(); return d === 0 ? 6 : d - 1; }
         function formatDate(y, m, d) { return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`; }
-
+        
         function generateWorkdayPackage(startDateStr, count = 20) {
             const result = [];
             let curr = new Date(startDateStr);
             while (result.length < count) {
                 const dayOfWeek = curr.getDay();
-                // 0 = Sun, 6 = Sat
                 if (dayOfWeek !== 0 && dayOfWeek !== 6) {
                     const y = curr.getFullYear();
                     const m = curr.getMonth();
@@ -115,33 +128,39 @@
             return result;
         }
 
-        // Package 1 starting September 9, 2026 (20 workdays: Sep 9 -> Oct 6)
+        // Package 1: September 9 start (20 workdays: Sep 9 -> Oct 6, Wed & Thu lessons)
         const pkg1 = generateWorkdayPackage("2026-09-09", 20);
 
+        // Package 2: October 8 start (4 lessons on Thursdays: Oct 8, Oct 15, Oct 22, Oct 29, span 22 days)
+        const pkg2 = [
+            "2026-10-08", "2026-10-09", "2026-10-10", "2026-10-11", "2026-10-12",
+            "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16", "2026-10-17",
+            "2026-10-18", "2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22",
+            "2026-10-23", "2026-10-24", "2026-10-25", "2026-10-26", "2026-10-27",
+            "2026-10-28", "2026-10-29"
+        ];
+
         function getPackageClass(dateStr) {
+            if (pkg2.includes(dateStr)) return "pkg-2";
             if (pkg1.includes(dateStr)) return "pkg-1";
             return null;
         }
 
-        function isDimaLesson(dateStr, dateObj) {
-            const dayOfWeek = dateObj.getDay(); // 3 = Wed, 4 = Thu
-            if (dayOfWeek !== 3 && dayOfWeek !== 4) return false;
-            
-            // Check if date belongs to defined September package
-            return getPackageClass(dateStr) !== null;
-        }
-
         function getCellClasses(dateStr, y, m, d) {
             const dateObj = new Date(y, m, d);
-            const isWeekend = (dateObj.getDay() === 0 || dateObj.getDay() === 6);
+            const dayOfWeek = dateObj.getDay(); // 0:Sun, 1:Mon, 2:Tue, 3:Wed, 4:Thu, 5:Fri, 6:Sat
+            const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+            
             let classes = [];
-
             const pkgClass = getPackageClass(dateStr);
             if (pkgClass) classes.push(pkgClass);
             else if (isWeekend) classes.push("weekend");
 
-            if (isDimaLesson(dateStr, dateObj)) {
-                classes.push("dima-lesson");
+            // Lesson checks
+            if (pkg1.includes(dateStr) && (dayOfWeek === 3 || dayOfWeek === 4)) {
+                classes.push("dima-lesson-pkg1");
+            } else if (pkg2.includes(dateStr) && dayOfWeek === 4) {
+                classes.push("dima-lesson-pkg2");
             }
 
             return classes.join(" ");
@@ -150,12 +169,10 @@
         function renderCalendar() {
             const container = document.getElementById("calendarGrid");
             container.innerHTML = "";
-
             for (let m = 0; m < 12; m++) {
                 const daysInMonth = getDaysInMonth(year, m);
                 const startOffset = getStartOffset(year, m);
                 const totalCells = Math.ceil((startOffset + daysInMonth) / 7) * 7;
-
                 let cardHtml = `
                 <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden flex flex-col">
                     <div class="bg-slate-100 text-slate-800 text-center py-2.5 px-4 font-bold text-base tracking-wide flex items-center justify-between border-b border-slate-200/60">
@@ -175,11 +192,9 @@
                 cardHtml += `</tr>
                             </thead>
                             <tbody>`;
-
                 let day = 1;
                 for (let i = 0; i < totalCells; i++) {
                     if (i % 7 === 0) cardHtml += "<tr>";
-
                     if (i >= startOffset && day <= daysInMonth) {
                         const dateStr = formatDate(year, m, day);
                         const cls = getCellClasses(dateStr, year, m, day);
@@ -197,15 +212,12 @@
                         }
                         cardHtml += `<td class="h-8 w-8 text-xs rounded-lg other-month align-middle">${prevDay}</td>`;
                     }
-
                     if (i % 7 === 6) cardHtml += "</tr>";
                 }
-
                 cardHtml += `</tbody></table></div></div>`;
                 container.innerHTML += cardHtml;
             }
         }
-
         window.onload = renderCalendar;
     </script>
 </body>

@@ -21,10 +21,10 @@
     </script>
     <style>
         :root {
-            --pkg-1-bg: #dcfce7; --pkg-1-text: #15803d; /* Sep-Oct */
-            --pkg-2-bg: #ffedd5; --pkg-2-text: #c2410c; /* Oct-Nov */
-            --pkg-3-bg: #e0e7ff; --pkg-3-text: #4338ca; /* Nov-Dec */
-            --pkg-4-bg: #fce7f3; --pkg-4-text: #be185d; /* Dec */
+            --pkg-1-bg: #dcfce7; --pkg-1-text: #15803d;
+            --pkg-2-bg: #ffedd5; --pkg-2-text: #c2410c;
+            --pkg-3-bg: #e0e7ff; --pkg-3-text: #4338ca;
+            --pkg-4-bg: #fce7f3; --pkg-4-text: #be185d;
         }
         body {
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
@@ -103,13 +103,15 @@
 
         // Пакет 1: 20 рабочих дней с 9 сентября (занятия: ср + чт)
         const pkg1 = generateWorkdayPackage("2026-09-09", 20);
-
         // Пакет 2: 20 рабочих дней с 8 октября (занятия: только чт)
         const pkg2 = generateWorkdayPackage("2026-10-08", 20);
+        // Пакет 3: 20 рабочих дней с 5 ноября (занятия: только чт)
+        const pkg3 = generateWorkdayPackage("2026-11-05", 20);
 
         function getPackageClass(dateStr) {
             if (pkg1.includes(dateStr)) return "pkg-1";
             if (pkg2.includes(dateStr)) return "pkg-2";
+            if (pkg3.includes(dateStr)) return "pkg-3";
             return null;
         }
 
@@ -118,6 +120,7 @@
             const pkgClass = getPackageClass(dateStr);
             if (pkgClass === "pkg-1") return dayOfWeek === 3 || dayOfWeek === 4;
             if (pkgClass === "pkg-2") return dayOfWeek === 4;
+            if (pkgClass === "pkg-3") return dayOfWeek === 4;
             return false;
         }
 
